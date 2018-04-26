@@ -2,5 +2,9 @@
 - hosts: all
   become: true
   gather_facts: false
+  vars:
+    creds:    #variable
+      username: "{{ username }}"
+      password: "{{ password }}"
   roles:
    - configure-domain
