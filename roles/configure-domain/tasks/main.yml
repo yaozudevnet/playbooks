@@ -1,16 +1,4 @@
 ---
-- hosts: all
-  gather_facts: false
-  connection: local
-  vars_files:
-    - creds.yaml
-
-  vars:
-    creds:    
-      username: "{{ username }}"
-      password: "{{ password }}"
-
-  tasks:
     - name: configure domain name
       ios_system:
         provider: "{{ creds }}"
