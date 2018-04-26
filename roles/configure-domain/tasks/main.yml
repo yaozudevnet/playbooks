@@ -1,0 +1,30 @@
+---
+- hosts: all
+  gather_facts: false
+  connection: local
+  vars_files:
+    - creds.yaml
+
+  vars:
+    creds:    
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  tasks:
+    - name: configure domain name
+      ios_system:
+        provider: "{{ creds }}"
+        domain_name: test.local
+   
+    - name: configure name servers
+      ios_system:
+        provider: "{{ creds }}"
+        name_servers:
+          - 8.8.8.8
+          - 114.114.114.114
+
+    - name: save configuation
+      ios_config:
+        provider: "{{ creds }}"
+        save_when: modified       
+...
