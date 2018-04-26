@@ -2,9 +2,5 @@
 - hosts: all
   gather_facts: false
   connection: local
-  vars:
-    creds:    #variable
-      username: "{{ username }}"
-      password: "{{ password }}"
   roles:
     - configure-domain
