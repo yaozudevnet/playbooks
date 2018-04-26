@@ -1,0 +1,59 @@
+---
+- hosts: csr
+  gather_facts: false
+  connection: local
+  vars_files:
+    - creds.yaml
+    - customer_config.yaml
+
+  vars:
+    creds:    #variable
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  tasks:
+    - name: config interfaces
+      ios_config:
+        provider: "{{ creds }}"
+        lines:
+          - ip address {{ item.ip }} 255.255.255.255
+        parents:
+          - interface {{ item.port }}
+      with_items: "{{ interfaces }}"
+      when: (item.router == inventory_hostname)
+    
+    - name: configure ACL on Cisco 7200
+      ios_config:
+        provider: "{{ creds }}"
+        lines:
+          - access-list 99 permit 1.1.1.1
+
+    - name: verify ACL
+      ios_command:
+        provider: "{{ creds }}"
+        commands:
+          - sh access-list
+        waitfor:
+          - result[0] contains 'permit 1.1.1.1'
+    
+    - name: configure domain name
+      ios_system:
+        provider: "{{ creds }}"
+        domain_name: qytang.com
+        domain_search:
+          - 'qytang.com'
+          - 'engie.com'
+          - 'cisco.com'
+    
+    - name: configure name servers
+      ios_system:
+        provider: "{{ creds }}"
+        name_servers:
+          - 8.8.8.8
+          - 114.114.114.114
+
+    - name: save configuation
+      ios_config:
+        provider: "{{ creds }}"
+        save_when: modified       
+...
