@@ -1,6 +1,10 @@
 ---
 - hosts: all
-  connection: local
   gather_facts: false
+  connection: local
+  vars:
+    creds:    #variable
+      username: "{{ username }}"
+      password: "{{ password }}"
   roles:
-   - configure-domain
+    - configure-domain
