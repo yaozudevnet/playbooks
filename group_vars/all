@@ -1,2 +1,4 @@
-username: admin
-password: Cisc0123
+---
+sname: jack
+sfull: "Jack Ansible"
+
