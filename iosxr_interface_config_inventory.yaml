@@ -1,0 +1,5 @@
+interfaces:
+  - {router: 10.0.34.11, port: Gi0/0/0/2.1, VrfName: vpn101, ip: 10.1.1.1, Dot1q: 1}
+  - {router: 10.0.34.11, port: Gi0/0/0/2.2, VrfName: vpn102, ip: 10.1.1.2, Dot1q: 2}
+  - {router: 10.0.34.12, port: Gi0/0/0/2.1, VrfName: vpn101, ip: 10.2.1.1, Dot1q: 1}
+  - {router: 10.0.34.12, port: Gi0/0/0/2.2, VrfName: vpn102, ip: 10.2.1.2, Dot1q: 2}

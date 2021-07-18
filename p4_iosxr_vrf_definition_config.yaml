@@ -1,0 +1,39 @@
+---
+- hosts: XR
+  gather_facts: false
+  connection: local
+  vars_files:
+    - creds.yaml
+    - iosxr_vrf_inventory.yaml
+    - iosxr_interface_config_inventory.yaml
+
+  vars:
+    creds:    #create an variable
+      username: "{{ username }}"  #call the username stored in the vars files
+      password: "{{ password }}"
+
+  tasks:
+    - name: VRF creation
+      iosxr_config:
+        provider: "{{ creds }}"
+        lines:
+          - description {{ item.VrfDescription }}
+          - address-family ipv4 unicast export route-target {{ item.VpnRtExport }}
+          - address-family ipv4 unicast import route-target {{ item.VpnRtImport }}
+        parents:
+          - vrf {{ item.VrfName }}
+      with_items: "{{ VRFs }}"
+     
+    - name: Config sub-interface IP
+      iosxr_config:
+        provider: "{{ creds }}"
+        lines:
+          - vrf {{ item.VrfName }}
+          - ip address {{ item.ip }} 255.255.255.252
+          - encapsulation dot1q {{ item.Dot1q }}
+        parents:
+          - interface {{ item.port }}
+      with_items: "{{ interfaces }}"
+      when: (item.router == inventory_hostname)
+      
+...
