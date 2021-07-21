@@ -1,0 +1,105 @@
+---
+- name: Fortis-Legecy-NNI-Migration
+  hosts: XR
+  gather_facts: false
+  connection: local
+  vars_files:
+    - creds.yml
+    - iosxr_vrf_definition_var.yml
+    - iosxr_interface_config_var.yml
+
+  vars:
+    creds:    #create an variable
+      username: "{{ username }}"  #call the username stored in the vars files
+      password: "{{ password }}"
+
+  tasks:
+    - name: Configuring the login banner
+      iosxr_banner:
+        banner: login
+        text: |
+           ************************************************************************
+             You are now connected to $(hostname) and have therefore consented to all
+             of the terms and conditions of use within the BNP Paribas WIN
+           ************************************************************************
+        state: present 
+
+    - name: Configuring the motd banner
+      iosxr_banner:
+        banner: motd
+        text: |
+             ************************************************************************
+             Individuals using this computer system with or without proper authority
+             are subject to having all their activities on this system monitored and
+             recorded. Anyone using this system expressly consents to such monitoring
+             and to all appropriate disclosure of any evidence of violation of the
+             firm's rules including, but not limited to, criminal activity.
+             ************************************************************************
+        state: present
+    
+    - name: Creating Fortis Legacy VRFs on WIN PE
+      iosxr_config:
+        provider: "{{ creds }}"
+        lines:
+          - description {{ item.VrfDescription }}
+          - address-family ipv4 unicast export route-target {{ item.VrfRtExport }}
+          - address-family ipv4 unicast import route-target {{ item.VrfRtImport }}
+        parents:
+          - vrf {{ item.VrfName }}
+      with_items: "{{ VRFs }}"
+      
+    - name: Creating Bundle LAG Interfaces on WIN PE
+      iosxr_lag_interfaces:
+        config:
+          - name: Bundle-Ether100
+            members:
+              - member: GigabitEthernet0/0/0/0
+                mode: active
+              - member: GigabitEthernet0/0/0/1
+                mode: active
+            mode: active           
+    
+    - name: Activating Physical Interfaces on WIN PE
+      iosxr_interfaces:
+        config:
+          - name: GigabitEthernet0/0/0/0
+            enabled: True 
+          - name: GigabitEthernet0/0/0/1
+            enabled: True
+               
+    - name: Configuring Layer 3 Sub-interfaces
+      iosxr_config:
+        provider: "{{ creds }}"
+        lines:
+          - vrf {{ item.VrfName }}
+          - ip address {{ item.LocalIP }} 255.255.255.252
+          - encapsulation dot1q {{ item.Dot1q }}
+        parents:
+          - interface {{ item.port }}
+      with_items: "{{ interfaces }}"
+      when: (item.router == inventory_hostname)
+             
+    - name: configuring global bgp as 64510
+      iosxr_bgp:
+        bgp_as: 64510
+        router_id: {{ item.RouterID }}
+      with_items: "{{ bgp }}"
+      when: (item.router == inventory_hostname)    
+      
+    - name: Configuring Layer 3 VPN 
+      iosxr_config:
+        provider: "{{ creds }}"
+        lines:     
+          - vrf {{ item.VrfName }}
+          - rd {{ item.VrfRD }}          
+          - address-family ipv4 unicast redistribute connected
+          - neighbor {{ item.RemoteIP }}
+          - remote-as 64913
+          - address-family ipv4 unicast route-policy RP-pass-all in
+          - address-family ipv4 unicast route-policy RP-pass-all out          
+        parents:
+          - router bgp 64510  
+      with_items: "{{ interfaces }}"
+      when: (item.router == inventory_hostname)      
+      
+...

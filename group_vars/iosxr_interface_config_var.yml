@@ -1,0 +1,5 @@
+interfaces:
+  - {router: 10.253.106.13, port: Bundle-Ether100.1, VrfName: vpn101, VrfRD: 101011, LocalIP: 10.1.1.1, RemoteIP: 10.1.1.2, Dot1q: 1}
+  - {router: 10.253.106.13, port: Bundle-Ether100.2, VrfName: vpn102, VrfRD: 102011, LocalIP: 10.1.1.5, RemoteIP: 10.1.1.6, Dot1q: 2}
+  - {router: 10.253.106.12, port: Bundle-Ether100.1, VrfName: vpn101, VrfRD: 101012, LocalIP: 10.2.1.1, RemoteIP: 10.2.1.2, Dot1q: 1}
+  - {router: 10.253.106.12, port: Bundle-Ether100.2, VrfName: vpn102, VrfRD: 102012, LocalIP: 10.2.1.5, RemoteIP: 10.2.1.6, Dot1q: 2}

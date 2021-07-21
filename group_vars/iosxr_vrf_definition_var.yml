@@ -1,0 +1,3 @@
+VRFs:
+  - {VrfName: vpn101, VrfDescription: "## VRF VPN101 ##", VrfRtExport: "101:0", VrfRtImport: "101:0"}
+  - {VrfName: vpn102, VrfDescription: "## VRF VPN102 ##", VrfRtExport: "102:0", VrfRtImport: "102:0"}

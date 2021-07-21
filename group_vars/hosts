@@ -1,0 +1,12 @@
+[XR]
+10.253.106.13
+10.253.106.12
+
+
+[ALL:children]
+XR
+
+[ALL:vars]
+ansible_ssh_user="console"
+ansible_ssh_pass="W1nC0nS0L@2019"
+ansible_connection=local
